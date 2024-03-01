@@ -15,7 +15,7 @@ import {
 import { AuthenticationService } from './authentication.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
-import { Response } from 'express';
+import { Response, response } from 'express';
 import { AccessTokenGuard } from './guard/access-token.guard';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/common/interface/active-user-data.interface';
@@ -24,11 +24,16 @@ import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { MessagePattern, RpcException } from '@nestjs/microservices';
 import { TokenExpiredError } from '@nestjs/jwt';
+import { OtpAuthenticationService } from './otp-authentication.service';
+import { toFileStream } from 'qrcode';
 
 @ApiTags('Authentication')
 @Controller({ version: '1' })
 export class AuthenticationController {
-  constructor(private readonly authService: AuthenticationService) {}
+  constructor(
+    private readonly authService: AuthenticationService,
+    private readonly otpAuthenticationService: OtpAuthenticationService,
+  ) {}
 
   @MessagePattern('verify-token')
   async validateUser(jwtToken: string) {
@@ -105,5 +110,24 @@ export class AuthenticationController {
       message: 'Password berhasil dirubah',
       StatusCode: HttpStatus.OK,
     });
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('auth/2fa/generate')
+  async generateQrCode(
+    @ActiveUser() ActiveUser: ActiveUserData,
+    @Res() response: Response,
+  ) {
+    const { secret, uri, token } =
+      await this.otpAuthenticationService.generateSecret(ActiveUser.email);
+    await this.otpAuthenticationService.enableTfaForUser(
+      ActiveUser.email,
+      token,
+      secret,
+    );
+    // response.status(200).json(secret);
+    response.type('png');
+    return toFileStream(response, uri);
   }
 }

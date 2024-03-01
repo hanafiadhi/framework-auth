@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { IUpdateTfaUser } from 'src/common/interface/user-client.interface';
 import { SignUpDto } from 'src/iam/authentication/dto/sign-up.dto';
 
 @Injectable()
@@ -10,4 +11,5 @@ export abstract class UserClientService {
     _id: string;
     password: string;
   }): Promise<any>;
+  abstract updateTfaforUser(payload: IUpdateTfaUser): Promise<any>;
 }

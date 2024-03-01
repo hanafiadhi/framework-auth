@@ -16,6 +16,7 @@ import { ActiveUserData } from 'src/common/interface/active-user-data.interface'
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserClientService } from 'src/consumer/use-case/user.use-case';
+import { OtpAuthenticationService } from './otp-authentication.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -25,6 +26,7 @@ export class AuthenticationService {
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly userClientService: UserClientService,
+    private readonly otpAuthenticationService: OtpAuthenticationService,
   ) {}
 
   async verifyToken(token: string) {
@@ -80,14 +82,34 @@ export class AuthenticationService {
       throw new UnauthorizedException('email atau password salah');
     }
 
-    const equal = await this.hashingService.compare(
-      user.password,
-      signInDto.password,
-    );
+    /**
+     * bisa di cek dulu apakah user.isTfa itu true kalo true maka boleh verivy codenya jika tidak throw 401
+     */
+    if (signInDto.tfaSecrect) {
+      //   const isValid = await this.otpAuthenticationService.verifyCode(
+      //     user.tfaSecrect,
+      //     signInDto.email,
+      //     user._id
+      //   );
+      const isValid = await this.otpAuthenticationService.verifyCode(
+        signInDto.tfaSecrect,
+        user.tfaToken,
+        user._id,
+      );
+      if (!isValid) {
+        throw new UnauthorizedException('Invalid 2FA Code');
+      }
+    } else {
+      const equal = await this.hashingService.compare(
+        user.password,
+        signInDto.password,
+      );
 
-    if (!equal) {
-      throw new UnauthorizedException('Email Atau Password Salah');
+      if (!equal) {
+        throw new UnauthorizedException('Email Atau Password Salah');
+      }
     }
+
     return await this.generateToken(user);
   }
 
