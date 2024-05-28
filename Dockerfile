@@ -4,12 +4,12 @@ FROM node:20-alpine AS development
 WORKDIR /usr/src/app
 
 # Copy package files and install dependencies
-COPY ./agg-auth/package.json ./agg-auth/package-lock.json ./
-COPY ./agg-auth/tsconfig.json ./agg-auth/tsconfig.build.json ./agg-auth/nest-cli.json ./
+COPY ./auth-agg/package.json ./auth-agg/package-lock.json ./
+COPY ./auth-agg/tsconfig.json ./auth-agg/tsconfig.build.json ./auth-agg/nest-cli.json ./
 RUN npm install
 
 # Copy all source files
-COPY ./agg-auth .
+COPY ./auth-agg .
 
 # Build the application
 RUN npm run build
@@ -20,7 +20,7 @@ RUN npm run build
 # WORKDIR /usr/src/app
 
 # # Copy package files and install only production dependencies
-# COPY ./agg-auth/package.json ./agg-auth/package-lock.json ./
+# COPY ./auth-agg/package.json ./auth-agg/package-lock.json ./
 # RUN npm install --prod7
 
 # # Copy the built files from the development stage
