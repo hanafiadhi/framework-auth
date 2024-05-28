@@ -10,7 +10,6 @@ import {
   Res,
   UnauthorizedException,
   UseGuards,
-  Version,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { SignInDto } from './dto/sign-in.dto';
@@ -20,12 +19,23 @@ import { AccessTokenGuard } from './guard/access-token.guard';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/common/interface/active-user-data.interface';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiExcludeEndpoint,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { MessagePattern, RpcException } from '@nestjs/microservices';
 import { TokenExpiredError } from '@nestjs/jwt';
 import { OtpAuthenticationService } from './otp-authentication.service';
 import { toFileStream } from 'qrcode';
+import { ErrorBadRequestExecption, SignBody } from '@app/common';
+import { loginResponeSuccess } from '@app/common';
+import { ErrorUnauthorizedException } from '@app/common';
 
 @ApiTags('Authentication')
 @Controller({ version: '1' })
@@ -49,6 +59,7 @@ export class AuthenticationController {
     }
   }
 
+  @ApiExcludeEndpoint()
   @Post('/auth/register')
   async signUp(
     @Res({ passthrough: true }) response: Response,
@@ -62,6 +73,7 @@ export class AuthenticationController {
   }
 
   //   @UseGuards(LocalAuthGuard)
+  @ApiExcludeEndpoint()
   @ApiBearerAuth('jwt')
   @UseGuards(AccessTokenGuard)
   @Post('auth/health')
@@ -77,11 +89,16 @@ export class AuthenticationController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ required: true, type: SignBody })
+  @ApiOkResponse({ type: loginResponeSuccess })
+  @ApiUnauthorizedResponse({ type: ErrorUnauthorizedException })
+  @ApiBadRequestResponse({ type: ErrorBadRequestExecption })
   @Post('auth/login')
   async signInv2(@Body() signIn: SignInDto) {
     return await this.authService.signIn(signIn);
   }
 
+  @ApiExcludeEndpoint()
   @HttpCode(HttpStatus.OK)
   @Post('auth/refresh-token')
   async refreshToken(@Body() refreshToken: RefreshTokenDto) {
@@ -89,13 +106,14 @@ export class AuthenticationController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth('jwt')
-  @UseGuards(AccessTokenGuard)
+  //   @ApiBearerAuth('jwt')
+  //   @UseGuards(AccessTokenGuard)
   @Post('auth/logout')
   async logout() {
     throw new NotImplementedException('Under Contstruction');
   }
 
+  @ApiExcludeEndpoint()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('jwt')
   @UseGuards(AccessTokenGuard)
@@ -112,6 +130,7 @@ export class AuthenticationController {
     });
   }
 
+  @ApiExcludeEndpoint()
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   @Post('auth/2fa/generate')

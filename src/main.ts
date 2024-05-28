@@ -6,8 +6,8 @@ import * as basicAuth from 'express-basic-auth';
 // import * as csurf from 'csurf';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
-import { DocumentSwagger } from './common/swagger/document/document';
-import { AUTH_SERVICE } from './common/constants/service-rmq.constant';
+import { DocumentSwagger } from '@app/common';
+import { AUTH_SERVICE } from '@app/common';
 import { RmqService } from './providers/queue/rabbbitmq/rmq.service';
 
 async function bootstrap() {
@@ -27,17 +27,13 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const env: string = configService.get<string>('app.appEnv');
   const appName: string = configService.get<string>('app.appName');
-
   const swaggerConfig: any = configService.get<any>('swagger.config');
   const swaggerPath = swaggerConfig.documentationPath;
   const rmqService = app.get<RmqService>(RmqService);
-  const micto = app.connectMicroservice(
-    rmqService.getOptions(AUTH_SERVICE, true),
-  );
 
-  const ga = await app.startAllMicroservices();
+  app.connectMicroservice(rmqService.getOptions(AUTH_SERVICE, true));
+  await app.startAllMicroservices();
 
-  let swaggerUrl: string;
   if (swaggerConfig.swaggerUI === true) {
     app.use(
       [`${swaggerPath}`, `${swaggerConfig.documentationJson}`],

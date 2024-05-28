@@ -5,5 +5,16 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "plugins": ["@nestjs/swagger"]
+  },
+  "projects": {
+    "common": {
+      "type": "library",
+      "root": "src/common",
+      "entryFile": "index",
+      "sourceRoot": "src/common",
+      "compilerOptions": {
+        "tsConfigPath": "tsconfig.build.json"
+      }
+    }
   }
 }

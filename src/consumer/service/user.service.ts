@@ -9,6 +9,7 @@ import {
   CreateUser,
   FindByEmail,
   FindById,
+  FindByUsername,
   UpdateTfaforUser,
 } from 'src/common/message-pattern/user-client.pattern';
 import { IUpdateTfaUser } from 'src/common/interface/user-client.interface';
@@ -16,6 +17,9 @@ import { IUpdateTfaUser } from 'src/common/interface/user-client.interface';
 @Injectable()
 export class UserService implements UserClientService {
   constructor(@Inject(USER_SERVICE) private readonly userClient: ClientProxy) {}
+  async findByUsername(username: string): Promise<any> {
+    return await firstValueFrom(this.userClient.send(FindByUsername, username));
+  }
   async updateTfaforUser(payload: IUpdateTfaUser): Promise<any> {
     return await firstValueFrom(
       this.userClient.send(UpdateTfaforUser, payload),

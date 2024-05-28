@@ -5,8 +5,21 @@ export default registerAs(
   (): Record<string, any> => ({
     config: {
       info: {
-        title: '{Grouping by Repo}-{ngikutin kata}-Aggregation',
-        setDescription: 'Deskripsi Aplikasi Anda',
+        title: 'PDP Auth Aggregation',
+        setDescription: `Deskripsi Agregasi Otentikasi (Authentication Aggregation)
+        Agregasi Otentikasi adalah sebuah mekanisme yang digunakan untuk mengelola berbagai metode otentikasi dalam satu sistem secara terpadu. Dalam konteks aplikasi web atau API, agregasi otentikasi memungkinkan pengguna untuk mengautentikasi diri mereka menggunakan beberapa metode otentikasi seperti email dan kata sandi, OAuth (misalnya Google, Facebook), token API, atau bahkan autentikasi dua faktor (2FA).
+
+        Manfaat Agregasi Otentikasi:
+        - Kemudahan Penggunaan: Pengguna dapat memilih metode otentikasi yang paling nyaman bagi mereka.
+        - Keamanan yang Ditingkatkan: Dengan mendukung autentikasi dua faktor dan token, keamanan aplikasi ditingkatkan.
+        - Fleksibilitas: Memungkinkan pengembang untuk menambahkan atau mengubah metode otentikasi tanpa mengganggu pengalaman pengguna.
+        - Sentralisasi Manajemen: Semua metode otentikasi dikelola di satu tempat, memudahkan administrasi dan pemeliharaan.
+
+        Komponen Utama:
+        - Strategi Otentikasi: Menggunakan berbagai strategi seperti LocalStrategy untuk email/kata sandi, JwtStrategy untuk token JWT, dan OAuthStrategy untuk otentikasi OAuth.
+        - Guards: Mengamankan rute dan menentukan apakah pengguna memiliki izin yang diperlukan untuk mengakses sumber daya tertentu.
+        - Decorators: Menghiasi rute dan parameter dengan informasi otentikasi yang relevan.
+        - Middleware: Mengintersepsi dan memproses permintaan sebelum mencapai controller, misalnya untuk memverifikasi token JWT.`,
         setVersion: '1.0',
         setTermsOfService: 'https://example.com/terms',
         setContact: `'John Doe', 'john@example.com', 'https://example.com/contact'`,

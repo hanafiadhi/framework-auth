@@ -34,7 +34,6 @@ export class DocumentSwagger implements IDocumentSwagger {
   readonly develompentUrl: string;
   readonly productionUrl: string;
   constructor(private readonly configService: ConfigService) {
-    this.title = configService.get<string>('swagger.config.info.title');
     this.setDescription = configService.get<string>(
       'swagger.config.info.setDescription',
     );

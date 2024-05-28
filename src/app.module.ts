@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { IamModule } from './iam/iam.module';
 import { ConfigModule } from '@nestjs/config';
+import { IamModule } from './iam/iam.module';
 
-import config from './common/config';
-
+import config from '@app/common/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -11,6 +10,7 @@ import config from './common/config';
       isGlobal: true,
       cache: true,
       ignoreEnvFile: false,
+      envFilePath: ['./env/.env.development'],
     }),
     IamModule,
   ],

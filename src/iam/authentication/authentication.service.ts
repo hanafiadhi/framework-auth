@@ -77,10 +77,16 @@ export class AuthenticationService {
     }
   }
   async signIn(signInDto: SignInDto) {
-    const user = await this.userClientService.findByEmail(signInDto.email);
-    if (!user) {
-      throw new UnauthorizedException('email atau password salah');
-    }
+    const user = await this.userClientService.findByUsername(
+      signInDto.username,
+    );
+
+    if (!user) throw new UnauthorizedException('username atau password salah');
+    // if (
+    //   user.hasOwnProperty('applications') &&
+    //   !user?.applications?.includes(signInDto.applications)
+    // )
+    //   throw new UnauthorizedException('Username Atau Password Salah');
 
     /**
      * bisa di cek dulu apakah user.isTfa itu true kalo true maka boleh verivy codenya jika tidak throw 401
@@ -106,7 +112,7 @@ export class AuthenticationService {
       );
 
       if (!equal) {
-        throw new UnauthorizedException('Email Atau Password Salah');
+        throw new UnauthorizedException('Username Atau Password Salah');
       }
     }
 

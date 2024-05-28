@@ -11,6 +11,6 @@ export default registerAs(
     appName: process.env.APP_NAME || 'canvas-aggregation-auth',
     apiPrefix: process.env.API_PREFIX || '/api/v1',
     googleCloud: process.env.GOOGLE_CLOUD,
-    bucketGcpAuth: process.env.BUCKET_GCP_AUTH
+    bucketGcpAuth: process.env.BUCKET_GCP_AUTH,
   }),
 );
