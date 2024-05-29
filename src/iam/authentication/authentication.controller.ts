@@ -139,9 +139,9 @@ export class AuthenticationController {
     @Res() response: Response,
   ) {
     const { secret, uri, token } =
-      await this.otpAuthenticationService.generateSecret(ActiveUser.email);
+      await this.otpAuthenticationService.generateSecret(ActiveUser.username);
     await this.otpAuthenticationService.enableTfaForUser(
-      ActiveUser.email,
+      ActiveUser.username,
       token,
       secret,
     );

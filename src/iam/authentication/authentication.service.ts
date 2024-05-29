@@ -59,11 +59,15 @@ export class AuthenticationService {
       this.signToken<Partial<ActiveUserData>>(
         user._id,
         this.jwtConfiguration.accessTokenTtl,
-        { email: user.email },
+        { username: user.username, tenant_id: user.tenant_id },
       ),
       this.signToken(user._id, this.jwtConfiguration.refreshTokenTtl),
     ]);
     return {
+      sub: user._id,
+      username: user.username,
+      tenant_id: user.tenant_id,
+      role: user.role,
       accessToken,
       refreshToken,
     };
@@ -121,11 +125,12 @@ export class AuthenticationService {
 
   async refreshToken(refreshTokenDto: RefreshTokenDto) {
     try {
-      const { sub, email } = await this.jwtService.verifyAsync<
-        Pick<ActiveUserData, 'sub' | 'email'>
-      >(refreshTokenDto.refreshToken, {
-        secret: this.jwtConfiguration.secret,
-      });
+      const { sub, username, tenant_id, role } =
+        await this.jwtService.verifyAsync<
+          Pick<ActiveUserData, 'sub' | 'username' | 'tenant_id' | 'role'>
+        >(refreshTokenDto.refreshToken, {
+          secret: this.jwtConfiguration.secret,
+        });
 
       /**
        * Todo
@@ -133,7 +138,7 @@ export class AuthenticationService {
        * jika tidak ada throw
        */
 
-      return await this.generateToken({ _id: sub, email });
+      return await this.generateToken({ _id: sub, username, tenant_id, role });
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException('Refresh Token Tidak Berlaku');

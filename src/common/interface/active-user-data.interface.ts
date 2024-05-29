@@ -8,8 +8,9 @@ export interface ActiveUserData {
    * The "Email" of the token, The Value of thid property is the Email User or something
    * that granted this token
    */
-  email?: 'hanafi@gmail.com';
-
+  username?: '0910010';
+  tenant_id: string;
+  role: Array<string>;
   /**
    * The "iat" of the token, The Value when token is created
    * that granted this token

@@ -31,7 +31,9 @@ async function bootstrap() {
   const swaggerPath = swaggerConfig.documentationPath;
   const rmqService = app.get<RmqService>(RmqService);
 
-  app.connectMicroservice(rmqService.getOptions(AUTH_SERVICE, true));
+  const service = await app.connectMicroservice(
+    rmqService.getOptions(AUTH_SERVICE, true),
+  );
   await app.startAllMicroservices();
 
   if (swaggerConfig.swaggerUI === true) {
