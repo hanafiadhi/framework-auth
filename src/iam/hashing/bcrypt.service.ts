@@ -8,8 +8,6 @@ export class BcryptService implements HashingService {
     return await argon2.hash(data);
   }
   async compare(encrypted: string, password: string): Promise<boolean> {
-    console.log(encrypted, password);
-
     try {
       if (await argon2.verify(encrypted, password)) {
         // password match

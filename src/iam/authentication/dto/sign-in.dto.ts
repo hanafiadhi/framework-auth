@@ -12,12 +12,13 @@ import {
 export class SignInDto {
   @IsNotEmpty()
   @IsString()
-  @MinLength(10)
+  @MinLength(4)
   @MaxLength(13)
   username: string;
 
   @IsNotEmpty()
-  @MinLength(8)
+  @MinLength(4)
+  @MaxLength(100)
   password: string;
 
   @IsNotEmpty()
@@ -26,8 +27,5 @@ export class SignInDto {
   @MaxLength(100)
   applications: string;
 
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
   tfaSecrect: string;
 }

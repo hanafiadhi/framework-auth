@@ -7,15 +7,17 @@ export class SignBody extends PartialType(SignInDto) {
     required: true,
     description: 'Bisa nomor whatsapp atau yang lain',
     example: '0834567890123',
-    minimum: 10,
+    minLength: 4,
+    type: String,
   })
   username: string;
 
   @ApiProperty({
     required: true,
-    description: 'Silahkan masukan password nda',
+    description: 'Silahkan masukan password anda',
     example: 'gundamRx70',
-    minimum: 8,
+    minLength: 4,
+    type: String,
   })
   password: string;
 
@@ -26,9 +28,9 @@ export class SignBody extends PartialType(SignInDto) {
   })
   applications: string;
 
-  @ApiProperty({
-    required: false,
-    description: 'abaikan saja',
-  })
+  //   @ApiProperty({
+  //     required: false,
+  //     description: 'abaikan saja',
+  //   })
   tfaSecrect: string;
 }
