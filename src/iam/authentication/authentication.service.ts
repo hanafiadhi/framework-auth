@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -86,11 +85,12 @@ export class AuthenticationService {
     );
 
     if (!user) throw new UnauthorizedException('username atau password salah');
-    // if (
-    //   user.hasOwnProperty('applications') &&
-    //   !user?.applications?.includes(signInDto.applications)
-    // )
-    //   throw new UnauthorizedException('Username Atau Password Salah');
+    if (
+      user.hasOwnProperty('applications') &&
+      !user?.applications?.includes(signInDto.applications)
+    ) {
+      throw new UnauthorizedException('Username Atau Password Salah');
+    }
 
     /**
      * bisa di cek dulu apakah user.isTfa itu true kalo true maka boleh verivy codenya jika tidak throw 401

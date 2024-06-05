@@ -1,6 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ActiveUserData } from '../../../interface/active-user-data.interface';
-import { PartialType } from '@nestjs/mapped-types';
 
 export class loginResponeSuccess {
   @ApiProperty()

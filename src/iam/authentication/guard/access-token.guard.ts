@@ -1,24 +1,16 @@
 import {
   CanActivate,
   ExecutionContext,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { TokenExpiredError } from '@nestjs/jwt';
 import { Request } from 'express';
-import jwtConfig from 'src/common/config/jwt.config';
 import { AuthenticationService } from '../authentication.service';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
-  constructor(
-    private readonly jwtServcie: JwtService,
-    private readonly authService: AuthenticationService,
-    @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  constructor(private readonly authService: AuthenticationService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token: string | undefined = this.extractTokenFromHeader(request);

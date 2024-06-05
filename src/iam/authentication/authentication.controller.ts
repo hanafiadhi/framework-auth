@@ -5,7 +5,6 @@ import {
   HttpStatus,
   NotImplementedException,
   Post,
-  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -72,11 +71,9 @@ export class AuthenticationController {
     });
   }
 
-  //   @UseGuards(LocalAuthGuard)
-  @ApiExcludeEndpoint()
   @ApiBearerAuth('jwt')
   @UseGuards(AccessTokenGuard)
-  @Post('auth/health')
+  @Post('health')
   async health(@ActiveUser() user: ActiveUserData, @Req() req) {
     return true;
     // return await this.authService.signIp(signInpDto);
@@ -106,8 +103,6 @@ export class AuthenticationController {
   }
 
   @HttpCode(HttpStatus.OK)
-  //   @ApiBearerAuth('jwt')
-  //   @UseGuards(AccessTokenGuard)
   @Post('auth/logout')
   async logout() {
     throw new NotImplementedException('Under Contstruction');
