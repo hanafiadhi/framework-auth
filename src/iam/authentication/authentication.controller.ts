@@ -71,10 +71,8 @@ export class AuthenticationController {
     });
   }
 
-  @ApiBearerAuth('jwt')
-  @UseGuards(AccessTokenGuard)
   @Post('health')
-  async health(@ActiveUser() user: ActiveUserData, @Req() req) {
+  async health() {
     return true;
     // return await this.authService.signIp(signInpDto);
     // response.cookie('accessToken', accToken, {
