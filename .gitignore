@@ -1,4 +1,6 @@
 # compiled output
+/env/.env.docker
+
 /dist
 /node_modules
 .env
