@@ -46,7 +46,7 @@ export class DocumentSwagger implements IDocumentSwagger {
 
   public Builder() {
     return new DocumentBuilder()
-      .setTitle('hai hanafi disini')
+      .setTitle(this.title)
       .setDescription(this.setDescription)
       .addBearerAuth(
         {
