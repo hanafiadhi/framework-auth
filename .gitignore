@@ -38,4 +38,3 @@ lerna-debug.log*
 
 #docker
 env
-docker
