@@ -71,18 +71,6 @@ export class AuthenticationController {
     });
   }
 
-  @Post('health')
-  async health() {
-    return true;
-    // return await this.authService.signIp(signInpDto);
-    // response.cookie('accessToken', accToken, {
-    //   secure: true,
-    //   httpOnly: true,
-    //   sameSite: true,
-    // });
-    // return user;
-  }
-
   @HttpCode(HttpStatus.OK)
   @ApiBody({ required: true, type: SignBody })
   @ApiOkResponse({ type: loginResponeSuccess })
