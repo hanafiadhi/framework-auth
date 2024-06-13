@@ -1,10 +1,10 @@
 import { Controller, Get, Param, Delete, Version } from '@nestjs/common';
 
-@Controller('Authentication/health')
+@Controller('health')
 export class HealthController {
   @Version('1')
-  @Get()
-  findOne(@Param('id') id: string) {
-    true;
+  @Get('auth')
+  findOne() {
+    return true;
   }
 }
