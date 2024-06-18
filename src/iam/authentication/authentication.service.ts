@@ -16,6 +16,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserClientService } from 'src/consumer/use-case/user.use-case';
 import { OtpAuthenticationService } from './otp-authentication.service';
+import { TenantClientService } from '../../consumer/use-case/tenant.use-case';
 
 @Injectable()
 export class AuthenticationService {
@@ -25,6 +26,7 @@ export class AuthenticationService {
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly userClientService: UserClientService,
+    private readonly tenantClientService: TenantClientService,
     private readonly otpAuthenticationService: OtpAuthenticationService,
   ) {}
 
@@ -114,6 +116,16 @@ export class AuthenticationService {
         user.password,
         signInDto.password,
       );
+
+      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+      const currentDate = new Date();
+      const periodEndDate = new Date(tenant.period_end);
+
+      if (!tenant.isActive || periodEndDate < currentDate) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
 
       if (!equal) {
         throw new UnauthorizedException('Username Atau Password Salah');

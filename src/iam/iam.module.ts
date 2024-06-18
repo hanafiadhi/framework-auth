@@ -9,13 +9,19 @@ import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './authentication/strategy/local-strategy';
 import { RmqModule } from 'src/providers/queue/rabbbitmq/rmq.module';
-import { USER_SERVICE } from 'src/common/constants/service-rmq.constant';
+import {
+  TENANT_SERVICE,
+  USER_SERVICE,
+} from 'src/common/constants/service-rmq.constant';
 import { UserClientService } from 'src/consumer/use-case/user.use-case';
 import { UserService } from 'src/consumer/service/user.service';
 import { OtpAuthenticationService } from './authentication/otp-authentication.service';
+import { TenantClientService } from '../consumer/use-case/tenant.use-case';
+import { TenantService } from '../consumer/service/tenant.service';
 @Module({
   imports: [
     RmqModule.register({ name: USER_SERVICE }),
+    RmqModule.register({ name: TENANT_SERVICE }),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
     PassportModule,
@@ -26,6 +32,7 @@ import { OtpAuthenticationService } from './authentication/otp-authentication.se
       useClass: BcryptService,
     },
     { provide: UserClientService, useClass: UserService },
+    { provide: TenantClientService, useClass: TenantService },
     AuthenticationService,
     LocalStrategy,
     OtpAuthenticationService,
