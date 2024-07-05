@@ -10,6 +10,7 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './authentication/strategy/local-strategy';
 import { RmqModule } from 'src/providers/queue/rabbbitmq/rmq.module';
 import {
+    REDIS_SERVICE,
   TENANT_SERVICE,
   USER_SERVICE,
 } from 'src/common/constants/service-rmq.constant';
@@ -18,10 +19,13 @@ import { UserService } from 'src/consumer/service/user.service';
 import { OtpAuthenticationService } from './authentication/otp-authentication.service';
 import { TenantClientService } from '../consumer/use-case/tenant.use-case';
 import { TenantService } from '../consumer/service/tenant.service';
+import { RedisClientService } from '../consumer/use-case/redis.use-cae';
+import { RedisService } from '../consumer/service/redis.service';
 @Module({
   imports: [
     RmqModule.register({ name: USER_SERVICE }),
     RmqModule.register({ name: TENANT_SERVICE }),
+    RmqModule.register({ name: REDIS_SERVICE }),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
     PassportModule,
@@ -33,6 +37,7 @@ import { TenantService } from '../consumer/service/tenant.service';
     },
     { provide: UserClientService, useClass: UserService },
     { provide: TenantClientService, useClass: TenantService },
+    { provide: RedisClientService, useClass: RedisService },
     AuthenticationService,
     LocalStrategy,
     OtpAuthenticationService,

@@ -28,7 +28,13 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { MessagePattern, RpcException } from '@nestjs/microservices';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+  RpcException,
+} from '@nestjs/microservices';
 import { TokenExpiredError } from '@nestjs/jwt';
 import { OtpAuthenticationService } from './otp-authentication.service';
 import { toFileStream } from 'qrcode';
@@ -54,8 +60,15 @@ export class AuthenticationController {
           new UnauthorizedException('Silahkan Login Kembali').getResponse(),
         );
       }
-      throw new RpcException(new UnauthorizedException().getResponse());
+      throw new RpcException(
+        new UnauthorizedException('Silahkan Login Kembali').getResponse(),
+      );
     }
+  }
+
+  @MessagePattern('health-check')
+  async nice(@Payload() data: any) {
+    return data;
   }
 
   @ApiExcludeEndpoint()
@@ -89,9 +102,18 @@ export class AuthenticationController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard)
   @Post('auth/logout')
-  async logout() {
-    throw new NotImplementedException('Under Contstruction');
+  @ApiBearerAuth('jwt')
+  async logout(
+    @Res({ passthrough: true }) response: Response,
+    @ActiveUser() user: ActiveUserData,
+  ) {
+    await this.authService.logout(user.sub);
+    response.status(HttpStatus.OK).json({
+      message: 'Selamat Anda Berhasil Logout',
+      StatusCode: HttpStatus.OK,
+    });
   }
 
   @ApiExcludeEndpoint()

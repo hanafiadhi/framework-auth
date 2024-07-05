@@ -17,6 +17,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserClientService } from 'src/consumer/use-case/user.use-case';
 import { OtpAuthenticationService } from './otp-authentication.service';
 import { TenantClientService } from '../../consumer/use-case/tenant.use-case';
+import { RedisClientService } from '../../consumer/use-case/redis.use-cae';
 
 @Injectable()
 export class AuthenticationService {
@@ -27,13 +28,27 @@ export class AuthenticationService {
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly userClientService: UserClientService,
     private readonly tenantClientService: TenantClientService,
+    private readonly redisClientService: RedisClientService,
     private readonly otpAuthenticationService: OtpAuthenticationService,
   ) {}
 
   async verifyToken(token: string) {
     try {
-      return await this.jwtService.verifyAsync(token, this.jwtConfiguration);
+      const data: ActiveUserData = await this.jwtService.verifyAsync(
+        token,
+        this.jwtConfiguration,
+      );
+      const checkTokenRedis = await this.redisClientService.getCache({
+        key: data.sub,
+      });
+      if (!checkTokenRedis) {
+        throw new Error(
+          `user : ${data.username} , Token is Not Found in Redis`,
+        );
+      }
+      return data;
     } catch (error) {
+      console.log(error.message);
       throw error;
     }
   }
@@ -64,6 +79,12 @@ export class AuthenticationService {
       ),
       this.signToken(user._id, this.jwtConfiguration.refreshTokenTtl),
     ]);
+
+    await this.redisClientService.saveOrUpdateCache({
+      key: user._id,
+      value: accessToken,
+    });
+
     return {
       sub: user._id,
       username: user.username,
@@ -117,15 +138,15 @@ export class AuthenticationService {
         signInDto.password,
       );
 
-      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
-      const currentDate = new Date();
-      const periodEndDate = new Date(tenant.period_end);
+        const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+        const currentDate = new Date();
+        const periodEndDate = new Date(tenant.period_end);
 
-      if (!tenant.isActive || periodEndDate < currentDate) {
-        throw new UnauthorizedException(
-          'Tenant tidak aktif atau periode tenant telah berakhir',
-        );
-      }
+        if (!tenant.isActive || periodEndDate < currentDate) {
+          throw new UnauthorizedException(
+            'Tenant tidak aktif atau periode tenant telah berakhir',
+          );
+        }
 
       if (!equal) {
         throw new UnauthorizedException('Username Atau Password Salah');
@@ -180,6 +201,12 @@ export class AuthenticationService {
     return await this.userClientService.changePassword({
       _id: user._id,
       password: changePasswordDto.newPassword,
+    });
+  }
+
+  async logout(sub: string) {
+    await this.redisClientService.deleteCache({
+      key: sub,
     });
   }
 }
