@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  NotAcceptableException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -140,15 +141,22 @@ export class AuthenticationService {
         signInDto.password,
       );
 
-      //   const tenant = await this.tenantClientService.findTenant(user.tenant_id);
-      //   const currentDate = new Date();
-      //   const periodEndDate = new Date(tenant.period_end);
+      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
 
-      //   if (!tenant.isActive || periodEndDate < currentDate) {
-      //     throw new UnauthorizedException(
-      //       'Tenant tidak aktif atau periode tenant telah berakhir',
-      //     );
-      //   }
+      if (tenant == null) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
+
+      const currentDate = new Date();
+      const periodEndDate = new Date(tenant.period_end);
+
+      if (!tenant.isActive || periodEndDate < currentDate) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
 
       if (!equal) {
         throw new UnauthorizedException('Username Atau Password Salah');
