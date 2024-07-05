@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserClientService } from '../use-case/user.use-case';
-import { USER_SERVICE } from 'src/common/constants/service-rmq.constant';
+
 import { ClientProxy } from '@nestjs/microservices';
-import { SignUpDto } from 'src/iam/authentication/dto/sign-up.dto';
+
 import { firstValueFrom } from 'rxjs';
+import { USER_SERVICE } from '../../common';
 import {
   ChangePassword,
   CreateUser,
@@ -11,8 +12,9 @@ import {
   FindById,
   FindByUsername,
   UpdateTfaforUser,
-} from 'src/common/message-pattern/user-client.pattern';
-import { IUpdateTfaUser } from 'src/common/interface/user-client.interface';
+} from '../../common/message-pattern/user-client.pattern';
+import { IUpdateTfaUser } from '../../common/interface/user-client.interface';
+import { SignUpDto } from '../../iam/authentication/dto/sign-up.dto';
 
 @Injectable()
 export class UserService implements UserClientService {

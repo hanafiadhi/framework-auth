@@ -15,8 +15,6 @@ import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { Response, response } from 'express';
 import { AccessTokenGuard } from './guard/access-token.guard';
-import { ActiveUser } from 'src/common/decorators/active-user.decorator';
-import { ActiveUserData } from 'src/common/interface/active-user-data.interface';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import {
   ApiBadRequestResponse,
@@ -41,6 +39,8 @@ import { toFileStream } from 'qrcode';
 import { ErrorBadRequestExecption, SignBody } from '@app/common';
 import { loginResponeSuccess } from '@app/common';
 import { ErrorUnauthorizedException } from '@app/common';
+import { ActiveUser } from '../../common/decorators/active-user.decorator';
+import { ActiveUserData } from '../../common/interface/active-user-data.interface';
 
 @ApiTags('Authentication')
 @Controller({ version: '1' })

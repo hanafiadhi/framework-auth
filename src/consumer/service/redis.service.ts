@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { REDIS_SERVICE } from 'src/common/constants/service-rmq.constant';
 import { ClientProxy } from '@nestjs/microservices';
 import { RedisClientService } from '../use-case/redis.use-cae';
 import { PayloadRedis } from '../../common/interface/payload-redis.interface';
 import { firstValueFrom } from 'rxjs';
 import { RedisJWT } from '../../common/message-pattern/redis-client.pattern';
+import { REDIS_SERVICE } from '../../common';
 
 @Injectable()
 export class RedisService implements RedisClientService {

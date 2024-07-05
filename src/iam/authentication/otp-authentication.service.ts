@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { authenticator } from 'otplib';
-import { UserClientService } from 'src/consumer/use-case/user.use-case';
+import { UserClientService } from '../../consumer/use-case/user.use-case';
 
 @Injectable()
 export class OtpAuthenticationService {

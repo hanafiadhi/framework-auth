@@ -1,14 +1,10 @@
 import { Controller, Get, Version } from '@nestjs/common';
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus';
 import { RmqHealthIndicator } from './health.service';
-import {
-  AUTH_SERVICE,
-  REDIS_SERVICE,
-  TENANT_SERVICE,
-  USER_SERVICE,
-} from '../common';
+import { AUTH_SERVICE } from '../common';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('auth/health')
+@Controller('volunteer/health')
 export class HealthController {
   constructor(
     private health: HealthCheckService,
@@ -17,10 +13,11 @@ export class HealthController {
 
   @Get()
   @Version('1')
+  @ApiTags('Health')
   @HealthCheck()
   check() {
     return this.health.check([
-    //   async () => this.rmqHealthIndicator.isHealthQueue(AUTH_SERVICE),
+      //   async () => this.rmqHealthIndicator.isHealthQueue(AUTH_SERVICE),
       async () => this.rmqHealthIndicator.isHealthConsumer(AUTH_SERVICE),
     ]);
   }

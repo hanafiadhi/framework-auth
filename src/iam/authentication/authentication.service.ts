@@ -11,13 +11,15 @@ import { SignInDto } from './dto/sign-in.dto';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import jwtConfig from '../../common/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
-import { ActiveUserData } from 'src/common/interface/active-user-data.interface';
+
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { UserClientService } from 'src/consumer/use-case/user.use-case';
+
 import { OtpAuthenticationService } from './otp-authentication.service';
 import { TenantClientService } from '../../consumer/use-case/tenant.use-case';
 import { RedisClientService } from '../../consumer/use-case/redis.use-cae';
+import { ActiveUserData } from '../../common/interface/active-user-data.interface';
+import { UserClientService } from '../../consumer/use-case/user.use-case';
 
 @Injectable()
 export class AuthenticationService {
@@ -38,14 +40,14 @@ export class AuthenticationService {
         token,
         this.jwtConfiguration,
       );
-      const checkTokenRedis = await this.redisClientService.getCache({
-        key: data.sub,
-      });
-      if (!checkTokenRedis) {
-        throw new Error(
-          `user : ${data.username} , Token is Not Found in Redis`,
-        );
-      }
+      //   const checkTokenRedis = await this.redisClientService.getCache({
+      //     key: data.sub,
+      //   });
+      //   if (!checkTokenRedis) {
+      //     throw new Error(
+      //       `user : ${data.username} , Token is Not Found in Redis`,
+      //     );
+      //   }
       return data;
     } catch (error) {
       console.log(error.message);
@@ -80,10 +82,10 @@ export class AuthenticationService {
       this.signToken(user._id, this.jwtConfiguration.refreshTokenTtl),
     ]);
 
-    await this.redisClientService.saveOrUpdateCache({
-      key: user._id,
-      value: accessToken,
-    });
+    // await this.redisClientService.saveOrUpdateCache({
+    //   key: user._id,
+    //   value: accessToken,
+    // });
 
     return {
       sub: user._id,
@@ -138,15 +140,15 @@ export class AuthenticationService {
         signInDto.password,
       );
 
-        const tenant = await this.tenantClientService.findTenant(user.tenant_id);
-        const currentDate = new Date();
-        const periodEndDate = new Date(tenant.period_end);
+      //   const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+      //   const currentDate = new Date();
+      //   const periodEndDate = new Date(tenant.period_end);
 
-        if (!tenant.isActive || periodEndDate < currentDate) {
-          throw new UnauthorizedException(
-            'Tenant tidak aktif atau periode tenant telah berakhir',
-          );
-        }
+      //   if (!tenant.isActive || periodEndDate < currentDate) {
+      //     throw new UnauthorizedException(
+      //       'Tenant tidak aktif atau periode tenant telah berakhir',
+      //     );
+      //   }
 
       if (!equal) {
         throw new UnauthorizedException('Username Atau Password Salah');
