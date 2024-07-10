@@ -41,14 +41,14 @@ export class AuthenticationService {
         token,
         this.jwtConfiguration,
       );
-      //   const checkTokenRedis = await this.redisClientService.getCache({
-      //     key: data.sub,
-      //   });
-      //   if (!checkTokenRedis) {
-      //     throw new Error(
-      //       `user : ${data.username} , Token is Not Found in Redis`,
-      //     );
-      //   }
+      const checkTokenRedis = await this.redisClientService.getCache({
+        key: data.sub,
+      });
+      if (!checkTokenRedis) {
+        throw new Error(
+          `user : ${data.username} , Token is Not Found in Redis`,
+        );
+      }
       return data;
     } catch (error) {
       console.log(error.message);
@@ -83,10 +83,10 @@ export class AuthenticationService {
       this.signToken(user._id, this.jwtConfiguration.refreshTokenTtl),
     ]);
 
-    // await this.redisClientService.saveOrUpdateCache({
-    //   key: user._id,
-    //   value: accessToken,
-    // });
+    await this.redisClientService.saveOrUpdateCache({
+      key: user._id,
+      value: accessToken,
+    });
 
     return {
       sub: user._id,
@@ -119,7 +119,7 @@ export class AuthenticationService {
     }
 
     if (user.is_active == false) {
-        throw new UnauthorizedException('User tidak aktif');
+      throw new UnauthorizedException('User tidak aktif');
     }
 
     /**
@@ -145,22 +145,22 @@ export class AuthenticationService {
         signInDto.password,
       );
 
-    //   const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
 
-    //   if (tenant == null) {
-    //     throw new UnauthorizedException(
-    //       'Tenant tidak aktif atau periode tenant telah berakhir',
-    //     );
-    //   }
+      if (tenant == null) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
 
-    //   const currentDate = new Date();
-    //   const periodEndDate = new Date(tenant.period_end);
+      const currentDate = new Date();
+      const periodEndDate = new Date(tenant.period_end);
 
-    //   if (!tenant.isActive || periodEndDate < currentDate) {
-    //     throw new UnauthorizedException(
-    //       'Tenant tidak aktif atau periode tenant telah berakhir',
-    //     );
-    //   }
+      if (!tenant.isActive || periodEndDate < currentDate) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
 
       if (!equal) {
         throw new UnauthorizedException('Username Atau Password Salah');
