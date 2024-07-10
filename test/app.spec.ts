@@ -104,7 +104,7 @@ describe('AuthController', () => {
         .mockRejectedValue(new UnauthorizedException());
 
       await expect(authController.signInv2(signInDto)).rejects.toThrow(
-        BadGatewayException,
+        UnauthorizedException,
       );
     });
   });
