@@ -118,6 +118,10 @@ export class AuthenticationService {
       throw new UnauthorizedException('Username Atau Password Salah');
     }
 
+    if (user.is_active == false) {
+        throw new UnauthorizedException('User tidak aktif');
+    }
+
     /**
      * bisa di cek dulu apakah user.isTfa itu true kalo true maka boleh verivy codenya jika tidak throw 401
      */
@@ -141,22 +145,22 @@ export class AuthenticationService {
         signInDto.password,
       );
 
-      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+    //   const tenant = await this.tenantClientService.findTenant(user.tenant_id);
 
-      if (tenant == null) {
-        throw new UnauthorizedException(
-          'Tenant tidak aktif atau periode tenant telah berakhir',
-        );
-      }
+    //   if (tenant == null) {
+    //     throw new UnauthorizedException(
+    //       'Tenant tidak aktif atau periode tenant telah berakhir',
+    //     );
+    //   }
 
-      const currentDate = new Date();
-      const periodEndDate = new Date(tenant.period_end);
+    //   const currentDate = new Date();
+    //   const periodEndDate = new Date(tenant.period_end);
 
-      if (!tenant.isActive || periodEndDate < currentDate) {
-        throw new UnauthorizedException(
-          'Tenant tidak aktif atau periode tenant telah berakhir',
-        );
-      }
+    //   if (!tenant.isActive || periodEndDate < currentDate) {
+    //     throw new UnauthorizedException(
+    //       'Tenant tidak aktif atau periode tenant telah berakhir',
+    //     );
+    //   }
 
       if (!equal) {
         throw new UnauthorizedException('Username Atau Password Salah');

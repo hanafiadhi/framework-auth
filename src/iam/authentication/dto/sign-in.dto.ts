@@ -18,5 +18,5 @@ export class SignInDto {
   @MaxLength(100)
   applications: string;
 
-  tfaSecrect: string;
+  tfaSecrect?: string;
 }

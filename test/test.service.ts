@@ -26,27 +26,4 @@ export class TestService {
       this.url = configService.get('swagger.config.productionUrl');
     }
   }
-  //   removeVolunter(payload: object) {
-  //     return this.volunteerClientService.removeMany(payload);
-  //   }
-  //   removeUser(payload: object) {
-  //     return this.userClientService.removeMany(payload);
-  //   }
-
-  //   async checkLogin(credentials: {
-  //     username: string;
-  //     password: string;
-  //     applications: string;
-  //   }) {
-  //     try {
-  //       const response = await axios.post(
-  //         `${this.url}:3000/v1/auth/login`,
-  //         credentials,
-  //       );
-  //       return response.data;
-  //     } catch (error) {
-  //       console.error('Login error:', error);
-  //       throw error;
-  //     }
-  //   }
 }
