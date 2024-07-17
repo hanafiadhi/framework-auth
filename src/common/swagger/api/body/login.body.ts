@@ -1,5 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { SignInDto } from '../../../../iam/authentication/dto/sign-in.dto';
+import {
+  SignInDto,
+  SignInMobileDto,
+} from '../../../../iam/authentication/dto/sign-in.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SignBody extends PartialType(SignInDto) {
@@ -32,5 +35,26 @@ export class SignBody extends PartialType(SignInDto) {
   //     required: false,
   //     description: 'abaikan saja',
   //   })
-  tfaSecrect: string;
+  tfaSecrect?: string;
+}
+
+export class SignMobileBody implements SignInMobileDto {
+  @ApiProperty()
+  username: string;
+  @ApiProperty()
+  password: string;
+  @ApiProperty()
+  device_id?: string;
+  @ApiProperty()
+  device_brand?: string;
+  @ApiProperty()
+  device_model?: string;
+  @ApiProperty()
+  device_manufacture?: string;
+  @ApiProperty()
+  device_os?: string;
+  @ApiProperty()
+  device_os_version?: string;
+  @ApiProperty()
+  application_version?: string;
 }

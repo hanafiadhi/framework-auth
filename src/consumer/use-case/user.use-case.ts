@@ -13,4 +13,5 @@ export abstract class UserClientService {
   }): Promise<any>;
   abstract updateTfaforUser(payload: IUpdateTfaUser): Promise<any>;
   abstract findByUsername(username: string): Promise<any>;
+  abstract updateUser(paylaod: { userId: string; data: any }): Promise<any>;
 }

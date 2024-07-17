@@ -19,6 +19,11 @@ import { SignUpDto } from '../../iam/authentication/dto/sign-up.dto';
 @Injectable()
 export class UserService implements UserClientService {
   constructor(@Inject(USER_SERVICE) private readonly userClient: ClientProxy) {}
+
+  async updateUser(paylaod: { userId: string; data: any }): Promise<any> {
+    return await firstValueFrom(this.userClient.emit('update-user', paylaod));
+  }
+
   async findByUsername(username: string): Promise<any> {
     return await firstValueFrom(this.userClient.send(FindByUsername, username));
   }

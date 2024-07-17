@@ -4,7 +4,7 @@ import { RmqHealthIndicator } from './health.service';
 import { AUTH_SERVICE } from '../common';
 import { ApiTags } from '@nestjs/swagger';
 
-@Controller('volunteer/health')
+@Controller('auth/health')
 export class HealthController {
   constructor(
     private health: HealthCheckService,

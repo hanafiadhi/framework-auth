@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
 import { HashingService } from '../hashing.service';
-import { SignInDto } from './dto/sign-in.dto';
+import { SignInDto, SignInMobileDto } from './dto/sign-in.dto';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import jwtConfig from '../../common/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
@@ -168,6 +168,53 @@ export class AuthenticationService {
     }
 
     return await this.generateToken(user);
+  }
+
+  async signInMobile(signInDto: SignInMobileDto) {
+    const user = await this.userClientService.findByUsername(
+      signInDto.username,
+    );
+
+    if (!user) throw new UnauthorizedException('username atau password salah');
+
+    if (
+      user.hasOwnProperty('applications') &&
+      !user?.applications?.includes('mobile-canvassing')
+    ) {
+      throw new UnauthorizedException('Username Atau Password Salah');
+    }
+
+    if (user.is_active == false) {
+      throw new UnauthorizedException('User tidak aktif');
+    }
+
+    const equal = await this.hashingService.compare(
+      user.password,
+      signInDto.password,
+    );
+
+    if (!equal) {
+      throw new UnauthorizedException('Username Atau Password Salah');
+    }
+    try {
+      const token = await this.generateToken(user);
+      await this.userClientService.updateUser({
+        userId: user._id,
+        data: {
+          last_logged_information: {
+            device_id: signInDto.device_id,
+            device_brand: signInDto.device_brand,
+            device_model: signInDto.device_model,
+            device_manufacture: signInDto.device_manufacture,
+            device_os: signInDto.device_os,
+            device_os_version: signInDto.device_os_version,
+          },
+        },
+      });
+      return token;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async refreshToken(refreshTokenDto: RefreshTokenDto) {

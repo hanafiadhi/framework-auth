@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
-import { SignInDto } from './dto/sign-in.dto';
+import { SignInDto, SignInMobileDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { Response, response } from 'express';
 import { AccessTokenGuard } from './guard/access-token.guard';
@@ -36,7 +36,11 @@ import {
 import { TokenExpiredError } from '@nestjs/jwt';
 import { OtpAuthenticationService } from './otp-authentication.service';
 import { toFileStream } from 'qrcode';
-import { ErrorBadRequestExecption, SignBody } from '@app/common';
+import {
+  ErrorBadRequestExecption,
+  SignBody,
+  SignMobileBody,
+} from '@app/common';
 import { loginResponeSuccess } from '@app/common';
 import { ErrorUnauthorizedException } from '@app/common';
 import { ActiveUser } from '../../common/decorators/active-user.decorator';
@@ -92,6 +96,16 @@ export class AuthenticationController {
   @Post('auth/login')
   async signInv2(@Body() signIn: SignInDto) {
     return await this.authService.signIn(signIn);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ required: true, type: SignMobileBody })
+  @ApiOkResponse({ type: loginResponeSuccess })
+  @ApiUnauthorizedResponse({ type: ErrorUnauthorizedException })
+  @ApiBadRequestResponse({ type: ErrorBadRequestExecption })
+  @Post('auth/mobile/login')
+  async signInv2Mobile(@Body() signIn: SignInMobileDto) {
+    return await this.authService.signInMobile(signIn);
   }
 
   @ApiExcludeEndpoint()
