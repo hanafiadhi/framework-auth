@@ -3,9 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  NotImplementedException,
   Post,
-  Req,
   Res,
   UnauthorizedException,
   UseGuards,
@@ -21,18 +19,13 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiExcludeEndpoint,
+  ApiHideProperty,
   ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import {
-  Ctx,
-  MessagePattern,
-  Payload,
-  RmqContext,
-  RpcException,
-} from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { TokenExpiredError } from '@nestjs/jwt';
 import { OtpAuthenticationService } from './otp-authentication.service';
 import { toFileStream } from 'qrcode';
@@ -45,12 +38,15 @@ import { loginResponeSuccess } from '@app/common';
 import { ErrorUnauthorizedException } from '@app/common';
 import { ActiveUser } from '../../common/decorators/active-user.decorator';
 import { ActiveUserData } from '../../common/interface/active-user-data.interface';
+import { ForgetPassword } from './dto/forget-password.dto';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Authentication')
 @Controller({ version: '1' })
 export class AuthenticationController {
   constructor(
     private readonly authService: AuthenticationService,
+    private readonly configService: ConfigService,
     private readonly otpAuthenticationService: OtpAuthenticationService,
   ) {}
 
@@ -75,15 +71,30 @@ export class AuthenticationController {
     return data;
   }
 
-  @ApiExcludeEndpoint()
   @Post('/auth/register')
   async signUp(
     @Res({ passthrough: true }) response: Response,
     @Body() signUpDto: SignUpDto,
   ) {
-    await this.authService.signUp(signUpDto);
+    const role = this.configService.get<string>(
+      'app.role_canvass',
+      'user-canvassing',
+    );
+    const application = this.configService.get<string>(
+      'app.application_canvass',
+      'mobile-canvassing',
+    );
+    const user = {
+      username: String(signUpDto.whatsapp),
+      tenant_id: signUpDto.tenant_id,
+      password: signUpDto.password,
+      role: [role], //env
+      applications: [application], //env
+      is_active: false,
+    };
+    await this.authService.signUp(signUpDto, user);
     response.status(HttpStatus.CREATED).json({
-      message: 'Selamat Anda Berhasil Membuat Akun',
+      message: 'Silahkan aktivasi akun anda dengan kode otp yang dikirimkan',
       StatusCode: HttpStatus.CREATED,
     });
   }
@@ -130,7 +141,7 @@ export class AuthenticationController {
     });
   }
 
-  @ApiExcludeEndpoint()
+  @ApiHideProperty()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('jwt')
   @UseGuards(AccessTokenGuard)
@@ -140,11 +151,33 @@ export class AuthenticationController {
     @ActiveUser() user: ActiveUserData,
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
-    await this.authService.changePassword(changePasswordDto, user.sub);
+    await this.authService.changePassword(changePasswordDto, user.username);
+    await this.authService.logout(user.sub);
     response.status(HttpStatus.OK).json({
       message: 'Password berhasil dirubah',
       StatusCode: HttpStatus.OK,
     });
+  }
+
+  @ApiHideProperty()
+  @Post('auth/forget-password')
+  async forgetPassword(
+    @Res({ passthrough: true }) response: Response,
+    @Body() { whatsapp, otp, password }: ForgetPassword,
+  ) {
+    if (otp) {
+      await this.authService.forgetPasssword(whatsapp, otp, password);
+      return response.status(HttpStatus.OK).json({
+        message: 'Password berhasil dirubah',
+        StatusCode: HttpStatus.OK,
+      });
+    } else {
+      await this.authService.forgetPasssword(whatsapp);
+      return response.status(HttpStatus.OK).json({
+        message: 'Silahkan cek whatsapp anda untuk mendapatkan kode',
+        StatusCode: HttpStatus.OK,
+      });
+    }
   }
 
   @ApiExcludeEndpoint()

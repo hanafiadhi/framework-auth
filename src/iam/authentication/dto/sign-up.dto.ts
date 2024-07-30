@@ -1,61 +1,97 @@
+import { ApiHideProperty } from '@nestjs/swagger';
 import {
-  IsEmail,
-  IsInt,
   IsMongoId,
   IsNotEmpty,
+  IsNumberString,
+  IsOptional,
   IsString,
-  Min,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 
 export class SignUpDto {
+    @IsOptional()
   @IsNotEmpty()
   @IsString()
   name: string;
 
   @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  @IsNumberString()
+  whatsapp: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
-  @MinLength(8)
+  @MinLength(4)
   password: string;
 
-  @IsNotEmpty()
-  @IsInt()
-  @Min(18)
-  age: number;
-
+  @IsOptional()
   @IsNotEmpty()
   @IsMongoId()
   province: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   province_name: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsMongoId()
   city: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   city_name: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsMongoId()
-  district: string;
+  district_id: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   district_name: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsMongoId()
-  sub_district: string;
+  sub_district_id: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   sub_district_name: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  rt: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  rw: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  tenant_id: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  volunteer_code: string;
+
+@ApiHideProperty()
+  user_id: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(4)
+  @MinLength(4)
+  token: string;
 }

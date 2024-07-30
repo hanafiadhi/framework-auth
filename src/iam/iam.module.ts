@@ -17,12 +17,21 @@ import { RedisService } from '../consumer/service/redis.service';
 import { RmqModule } from '../providers/queue/rabbbitmq/rmq.module';
 import { UserClientService } from '../consumer/use-case/user.use-case';
 import { UserService } from '../consumer/service/user.service';
-import { REDIS_SERVICE, TENANT_SERVICE, USER_SERVICE } from '../common';
+import {
+  REDIS_SERVICE,
+  TENANT_SERVICE,
+  USER_SERVICE,
+  VOLUNTEER_SERVICE,
+} from '../common';
+import { VolunteerClientService } from '../consumer/use-case/volunteer.use-case';
+import { VolunterConsumer } from '../consumer/service/volunteer.service';
+
 @Module({
   imports: [
     RmqModule.register({ name: USER_SERVICE }),
     RmqModule.register({ name: TENANT_SERVICE }),
     RmqModule.register({ name: REDIS_SERVICE }),
+    RmqModule.register({ name: VOLUNTEER_SERVICE }),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
     PassportModule,
@@ -33,6 +42,7 @@ import { REDIS_SERVICE, TENANT_SERVICE, USER_SERVICE } from '../common';
       useClass: BcryptService,
     },
     { provide: UserClientService, useClass: UserService },
+    { provide: VolunteerClientService, useClass: VolunterConsumer },
     { provide: TenantClientService, useClass: TenantService },
     { provide: RedisClientService, useClass: RedisService },
     AuthenticationService,

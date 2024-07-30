@@ -1,8 +1,8 @@
 import {
   BadRequestException,
+  HttpStatus,
   Inject,
   Injectable,
-  NotAcceptableException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -21,6 +21,7 @@ import { TenantClientService } from '../../consumer/use-case/tenant.use-case';
 import { RedisClientService } from '../../consumer/use-case/redis.use-cae';
 import { ActiveUserData } from '../../common/interface/active-user-data.interface';
 import { UserClientService } from '../../consumer/use-case/user.use-case';
+import { VolunteerClientService } from '../../consumer/use-case/volunteer.use-case';
 
 @Injectable()
 export class AuthenticationService {
@@ -31,6 +32,7 @@ export class AuthenticationService {
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly userClientService: UserClientService,
     private readonly tenantClientService: TenantClientService,
+    private readonly volunteerClientService: VolunteerClientService,
     private readonly redisClientService: RedisClientService,
     private readonly otpAuthenticationService: OtpAuthenticationService,
   ) {}
@@ -97,12 +99,54 @@ export class AuthenticationService {
       refreshToken,
     };
   }
-  async signUp(signUpDto: SignUpDto): Promise<any> {
+  async signUp(signUpDto: SignUpDto, newUser: any): Promise<any> {
+    let _idUser
     try {
-      signUpDto.password = await this.hashingService.hash(signUpDto.password);
-      return await this.userClientService.createUser(signUpDto);
+      if (signUpDto.token || (Object.keys(signUpDto).length == 1 && Object.keys(signUpDto).includes("whatsapp"))) {
+        return await this.userClientService.registerMobile({
+          whatsapp: signUpDto.whatsapp,
+          ...(Object.keys(signUpDto).includes("token") && {
+            token: signUpDto.token,
+          }),
+          token: signUpDto.token,
+        });
+      }
+      const { _id } = await this.userClientService.createUser(newUser);
+      _idUser=_id
+      const {
+        paging: { totalItems },
+      } = await this.volunteerClientService.findAll({
+        page: '1',
+        limit: '1',
+        fields: 'volunteer_code',
+        tenant_id: { eq: newUser.tenant_id },
+      });
+      signUpDto.volunteer_code = `${newUser.tenant_id}${
+        signUpDto.volunteer_code
+      }${totalItems + 1}`;
+      signUpDto.tenant_id = newUser.tenant_id;
+      signUpDto.user_id = _id;
+      delete signUpDto.password;
+      await this.volunteerClientService.create(signUpDto);
+      await this.userClientService.registerMobile({
+        whatsapp: signUpDto.whatsapp,
+      });
+      return;
     } catch (error) {
-      throw new BadRequestException(error.error);
+      if (
+        error.message == 'username sudah digunakan' ||
+        error.message == 'whatsapp sudah digunakan'
+      ) {
+
+        await this.userClientService.hardRemove(_idUser)
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: {
+            ['whatsapp']: [`whatsapp sudah digunakan`],
+          },
+        });
+      }
+      throw error;
     }
   }
   async signIn(signInDto: SignInDto) {
@@ -145,22 +189,22 @@ export class AuthenticationService {
         signInDto.password,
       );
 
-      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+      //   const tenant = await this.tenantClientService.findTenant(user.tenant_id);
 
-      if (tenant == null) {
-        throw new UnauthorizedException(
-          'Tenant tidak aktif atau periode tenant telah berakhir',
-        );
-      }
+      //   if (tenant == null) {
+      //     throw new UnauthorizedException(
+      //       'Tenant tidak aktif atau periode tenant telah berakhir',
+      //     );
+      //   }
 
-      const currentDate = new Date();
-      const periodEndDate = new Date(tenant.period_end);
+      //   const currentDate = new Date();
+      //   const periodEndDate = new Date(tenant.period_end);
 
-      if (!tenant.isActive || periodEndDate < currentDate) {
-        throw new UnauthorizedException(
-          'Tenant tidak aktif atau periode tenant telah berakhir',
-        );
-      }
+      //   if (!tenant.isActive || periodEndDate < currentDate) {
+      //     throw new UnauthorizedException(
+      //       'Tenant tidak aktif atau periode tenant telah berakhir',
+      //     );
+      //   }
 
       if (!equal) {
         throw new UnauthorizedException('Username Atau Password Salah');
@@ -241,8 +285,8 @@ export class AuthenticationService {
     }
   }
 
-  async changePassword(changePasswordDto: ChangePasswordDto, _id: string) {
-    const user = await this.userClientService.findById(_id);
+  async changePassword(changePasswordDto: ChangePasswordDto, username: string) {
+    const user = await this.userClientService.findByUsername(username);
     if (!user) {
       throw new NotFoundException(user);
     }
@@ -255,19 +299,24 @@ export class AuthenticationService {
     if (!equal) {
       throw new BadRequestException('Password Tidak Cocok');
     }
-    changePasswordDto.newPassword = await this.hashingService.hash(
-      changePasswordDto.newPassword,
-    );
 
-    return await this.userClientService.changePassword({
-      _id: user._id,
-      password: changePasswordDto.newPassword,
+    return await this.userClientService.updateUser({
+      userId: user._id,
+      data: { password: changePasswordDto.newPassword },
     });
   }
 
   async logout(sub: string) {
     await this.redisClientService.deleteCache({
       key: sub,
+    });
+  }
+
+  async forgetPasssword(whatsapp: string, otp?: string, password?: string) {
+    return await this.userClientService.forgetPassword({
+      whatsapp,
+      otp,
+      password,
     });
   }
 }

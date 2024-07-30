@@ -29,7 +29,7 @@ export class RmqHealthIndicator extends MicroserviceHealthIndicator {
     const options: RmqOptions = this.rmqService.getOptions(key);
 
     try {
-      const a = await this.pingCheck<RmqOptions>(key.toLocaleLowerCase(), {
+      await this.pingCheck<RmqOptions>(key.toLocaleLowerCase(), {
         transport: Transport.RMQ,
         options: {
           urls: options.options.urls,

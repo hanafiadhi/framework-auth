@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class SignInDto {

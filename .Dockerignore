@@ -6,3 +6,10 @@ node_modules
 .vscode
 *.swp
 *.env
+dist
+docker
+Dockerfile
+README.md
+env
+test/coverage
+test-results

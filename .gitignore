@@ -4,6 +4,8 @@
 /node_modules
 .env
 test-results
+docker
+env
 
 # Logs
 logs
@@ -36,7 +38,3 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-#docker
-env
-docker

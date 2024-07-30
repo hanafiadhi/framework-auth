@@ -15,10 +15,32 @@ import {
 } from '../../common/message-pattern/user-client.pattern';
 import { IUpdateTfaUser } from '../../common/interface/user-client.interface';
 import { SignUpDto } from '../../iam/authentication/dto/sign-up.dto';
+import { ForgetPassword } from '../../iam/authentication/dto/forget-password.dto';
 
 @Injectable()
 export class UserService implements UserClientService {
   constructor(@Inject(USER_SERVICE) private readonly userClient: ClientProxy) {}
+
+  async hardRemove(_id: string): Promise<any> {
+    return await firstValueFrom(
+      this.userClient.emit('delete-user-many', { _id }),
+    );
+  }
+
+  async registerMobile(paylaod: {
+    whatsapp: string;
+    token?: string;
+  }): Promise<any> {
+    return await firstValueFrom(
+      this.userClient.send('register-mobile', paylaod),
+    );
+  }
+
+  async forgetPassword(paylaod: ForgetPassword): Promise<any> {
+    return await firstValueFrom(
+      this.userClient.send('forget-password', paylaod),
+    );
+  }
 
   async updateUser(paylaod: { userId: string; data: any }): Promise<any> {
     return await firstValueFrom(this.userClient.emit('update-user', paylaod));

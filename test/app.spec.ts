@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { BadGatewayException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { AuthenticationController } from '../src/iam/authentication/authentication.controller';
 import { AuthenticationService } from '../src/iam/authentication/authentication.service';
 import { SignInDto } from '../src/iam/authentication/dto/sign-in.dto';
