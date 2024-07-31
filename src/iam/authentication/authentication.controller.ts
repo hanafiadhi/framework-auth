@@ -21,6 +21,7 @@ import {
   ApiExcludeEndpoint,
   ApiHideProperty,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -71,6 +72,14 @@ export class AuthenticationController {
     return data;
   }
 
+  @ApiOperation({
+    summary: 'registration for mobile',
+    description: `Flow :\n
+    1. untuk registrasi kirim semua payloadnya kecuali token \n
+    2. jika ingin kirim ulang kode Token OTP silahkan di bodynya {whatsapp: ""}\n
+    3. jika ingin verifikasi kode Token OTP yang di dapatkan kirim di bodynya {"whatsapp": "","token":""}
+    `,
+  })
   @Post('/auth/register')
   async signUp(
     @Res({ passthrough: true }) response: Response,
@@ -141,7 +150,7 @@ export class AuthenticationController {
     });
   }
 
-  @ApiHideProperty()
+  @ApiExcludeEndpoint()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('jwt')
   @UseGuards(AccessTokenGuard)
@@ -159,7 +168,7 @@ export class AuthenticationController {
     });
   }
 
-  @ApiHideProperty()
+  @ApiExcludeEndpoint()
   @Post('auth/forget-password')
   async forgetPassword(
     @Res({ passthrough: true }) response: Response,
