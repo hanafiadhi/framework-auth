@@ -18,9 +18,16 @@ import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from '../src/common/config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
 import { RmqModule } from '../src/providers/queue/rabbbitmq/rmq.module';
-import { REDIS_SERVICE, TENANT_SERVICE, USER_SERVICE } from '../src/common';
+import {
+  REDIS_SERVICE,
+  TENANT_SERVICE,
+  USER_SERVICE,
+  VOLUNTEER_SERVICE,
+} from '../src/common';
 import { PassportModule } from '@nestjs/passport';
 import config from '../src/common/config';
+import { VolunteerClientService } from '../src/consumer/use-case/volunteer.use-case';
+import { VolunterConsumer } from '../src/consumer/service/volunteer.service';
 
 describe('AuthController', () => {
   let authController: AuthenticationController;
@@ -39,6 +46,7 @@ describe('AuthController', () => {
         RmqModule.register({ name: USER_SERVICE }),
         RmqModule.register({ name: TENANT_SERVICE }),
         RmqModule.register({ name: REDIS_SERVICE }),
+        RmqModule.register({ name: VOLUNTEER_SERVICE }),
         JwtModule.registerAsync(jwtConfig.asProvider()),
         ConfigModule.forFeature(jwtConfig),
         PassportModule,
@@ -58,6 +66,7 @@ describe('AuthController', () => {
         { provide: UserClientService, useClass: UserService },
         { provide: TenantClientService, useClass: TenantService },
         { provide: RedisClientService, useClass: RedisService },
+        { provide: VolunteerClientService, useClass: VolunterConsumer },
         AuthenticationService,
         LocalStrategy,
         OtpAuthenticationService,

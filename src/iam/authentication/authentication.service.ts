@@ -100,19 +100,23 @@ export class AuthenticationService {
     };
   }
   async signUp(signUpDto: SignUpDto, newUser: any): Promise<any> {
-    let _idUser
+    let _idUser;
     try {
-      if (signUpDto.token || (Object.keys(signUpDto).length == 1 && Object.keys(signUpDto).includes("whatsapp"))) {
+      if (
+        signUpDto.token ||
+        (Object.keys(signUpDto).length == 1 &&
+          Object.keys(signUpDto).includes('whatsapp'))
+      ) {
         return await this.userClientService.registerMobile({
           whatsapp: signUpDto.whatsapp,
-          ...(Object.keys(signUpDto).includes("token") && {
+          ...(Object.keys(signUpDto).includes('token') && {
             token: signUpDto.token,
           }),
           token: signUpDto.token,
         });
       }
       const { _id } = await this.userClientService.createUser(newUser);
-      _idUser=_id
+      _idUser = _id;
       const {
         paging: { totalItems },
       } = await this.volunteerClientService.findAll({
@@ -137,8 +141,7 @@ export class AuthenticationService {
         error.message == 'username sudah digunakan' ||
         error.message == 'whatsapp sudah digunakan'
       ) {
-
-        await this.userClientService.hardRemove(_idUser)
+        await this.userClientService.hardRemove(_idUser);
         throw new BadRequestException({
           statusCode: HttpStatus.BAD_REQUEST,
           message: {
@@ -189,22 +192,22 @@ export class AuthenticationService {
         signInDto.password,
       );
 
-      //   const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
 
-      //   if (tenant == null) {
-      //     throw new UnauthorizedException(
-      //       'Tenant tidak aktif atau periode tenant telah berakhir',
-      //     );
-      //   }
+      if (tenant == null) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
 
-      //   const currentDate = new Date();
-      //   const periodEndDate = new Date(tenant.period_end);
+      const currentDate = new Date();
+      const periodEndDate = new Date(tenant.period_end);
 
-      //   if (!tenant.isActive || periodEndDate < currentDate) {
-      //     throw new UnauthorizedException(
-      //       'Tenant tidak aktif atau periode tenant telah berakhir',
-      //     );
-      //   }
+      if (!tenant.isActive || periodEndDate < currentDate) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
 
       if (!equal) {
         throw new UnauthorizedException('Username Atau Password Salah');
