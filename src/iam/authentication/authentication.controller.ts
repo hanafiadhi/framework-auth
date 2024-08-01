@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Res,
   UnauthorizedException,
@@ -18,8 +19,10 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiCreatedResponse,
   ApiExcludeEndpoint,
   ApiHideProperty,
+  ApiNotAcceptableResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -41,6 +44,7 @@ import { ActiveUser } from '../../common/decorators/active-user.decorator';
 import { ActiveUserData } from '../../common/interface/active-user-data.interface';
 import { ForgetPassword } from './dto/forget-password.dto';
 import { ConfigService } from '@nestjs/config';
+import { ResendOrVerif } from './dto/resend-or-verifikasi.dto';
 
 @ApiTags('Authentication')
 @Controller({ version: '1' })
@@ -74,13 +78,25 @@ export class AuthenticationController {
 
   @ApiOperation({
     summary: 'registration for mobile',
-    description: `Flow :\n
-    1. untuk registrasi kirim semua payloadnya kecuali token \n
-    2. jika ingin kirim ulang kode Token OTP silahkan di bodynya {whatsapp: ""}\n
-    3. jika ingin verifikasi kode Token OTP yang di dapatkan kirim di bodynya {"whatsapp": "","token":""}
-    `,
   })
-  @Post('/auth/register')
+  @ApiBadRequestResponse({ type: ErrorBadRequestExecption })
+  @ApiCreatedResponse({
+    description: 'verifikasi berhasil',
+    content: {
+        'application/json': {
+          examples: {
+            generateOTP: {
+              summary: 'Akun terbuat',
+              value: {
+                statusCode: 201,
+                message: 'Berhasil membuat akun silahkan request code OTP',
+              },
+            },
+          },
+        },
+      },
+  })
+  @Post('mobile/auth/register')
   async signUp(
     @Res({ passthrough: true }) response: Response,
     @Body() signUpDto: SignUpDto,
@@ -101,11 +117,97 @@ export class AuthenticationController {
       applications: [application], //env
       is_active: false,
     };
+
     await this.authService.signUp(signUpDto, user);
-    response.status(HttpStatus.CREATED).json({
-      message: 'Silahkan aktivasi akun anda dengan kode otp yang dikirimkan',
-      StatusCode: HttpStatus.CREATED,
-    });
+    response
+      .status(HttpStatus.CREATED)
+      .json({
+        message: 'Berhasil membuat akun silahkan request code OTP',
+        StatusCode: HttpStatus.CREATED,
+      })
+      .end();
+  }
+
+  @ApiOperation({
+    summary: 'resend kode otp dan juga kirim verifikasi akun',
+  })
+  @ApiOkResponse({
+    description: 'verifikasi berhasil',
+    content: {
+        'application/json': {
+          examples: {
+            generateOTP: {
+              summary: 'Generate kode OTP',
+              value: {
+                statusCode: 200,
+                message: 'berhasil generate code otp',
+              },
+            },
+            verified: {
+              summary: 'berhasil verifikasi',
+              value: {
+                statusCode: 200,
+                message: 'verifikasi berhasil',
+              },
+            },
+          },
+        },
+      },
+  })
+  @ApiNotAcceptableResponse({
+    description: 'Not Acceptable Responses',
+    content: {
+      'application/json': {
+        examples: {
+          userVerified: {
+            summary: 'User sudah diverifikasi',
+            value: {
+              statusCode: 406,
+              message: 'User sudah diverifikasi',
+            },
+          },
+          otpDeprecated: {
+            summary: 'OTP Expired',
+            value: {
+              statusCode: 406,
+              message: 'kode verifikasi sudah expired',
+            },
+          },
+          wrongOtp: {
+            summary: 'OTP salah',
+            value: {
+              statusCode: 406,
+              message: 'kode verifikasi salah',
+            },
+          },
+          banned: {
+            summary: 'Banned',
+            value: {
+              statusCode: 406,
+              message: {
+                statusCode: 817216186821,
+                message: 'Silahkan coba lagi',
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  @Patch('mobile/auth/resend-otp')
+  async sendTokenOtp(
+    @Res() response: Response,
+    @Body() { whatsapp, token }: ResendOrVerif,
+  ) {
+    try {
+      const responses = await this.authService.resendOrVerifikasiOtp(
+        whatsapp,
+        token,
+      );
+      response.status(responses['statusCode']).json(responses).end();
+    } catch (error) {
+      response.status(error.statusCode).json(error).end();
+    }
   }
 
   @HttpCode(HttpStatus.OK)

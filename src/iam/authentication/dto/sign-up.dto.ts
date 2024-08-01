@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 
 export class SignUpDto {
-    @IsOptional()
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   name: string;
@@ -28,7 +28,7 @@ export class SignUpDto {
   @IsOptional()
   @IsNotEmpty()
   @IsMongoId()
-  province: string;
+  province_id: string;
 
   @IsOptional()
   @IsNotEmpty()
@@ -38,7 +38,7 @@ export class SignUpDto {
   @IsOptional()
   @IsNotEmpty()
   @IsMongoId()
-  city: string;
+  city_id: string;
 
   @IsOptional()
   @IsNotEmpty()
@@ -85,13 +85,6 @@ export class SignUpDto {
   @IsString()
   volunteer_code: string;
 
-@ApiHideProperty()
+  @ApiHideProperty()
   user_id: string;
-
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(4)
-  @MinLength(4)
-  token: string;
 }

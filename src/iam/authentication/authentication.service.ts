@@ -102,19 +102,6 @@ export class AuthenticationService {
   async signUp(signUpDto: SignUpDto, newUser: any): Promise<any> {
     let _idUser;
     try {
-      if (
-        signUpDto.token ||
-        (Object.keys(signUpDto).length == 1 &&
-          Object.keys(signUpDto).includes('whatsapp'))
-      ) {
-        return await this.userClientService.registerMobile({
-          whatsapp: signUpDto.whatsapp,
-          ...(Object.keys(signUpDto).includes('token') && {
-            token: signUpDto.token,
-          }),
-          token: signUpDto.token,
-        });
-      }
       const { _id } = await this.userClientService.createUser(newUser);
       _idUser = _id;
       const {
@@ -132,25 +119,32 @@ export class AuthenticationService {
       signUpDto.user_id = _id;
       delete signUpDto.password;
       await this.volunteerClientService.create(signUpDto);
-      await this.userClientService.registerMobile({
-        whatsapp: signUpDto.whatsapp,
-      });
-      return;
     } catch (error) {
       if (
         error.message == 'username sudah digunakan' ||
         error.message == 'whatsapp sudah digunakan'
       ) {
-        await this.userClientService.hardRemove(_idUser);
+        if (_idUser) {
+          await this.userClientService.hardRemove(_idUser);
+        }
         throw new BadRequestException({
           statusCode: HttpStatus.BAD_REQUEST,
-          message: {
-            ['whatsapp']: [`whatsapp sudah digunakan`],
-          },
+          message: [`whatsapp sudah digunakan`],
         });
       }
       throw error;
     }
+  }
+
+  async resendOrVerifikasiOtp(whatsapp: string, token?: string) {
+    return await this.userClientService.registerMobile({
+      ...(whatsapp && {
+        whatsapp,
+      }),
+      ...(token && {
+        token,
+      }),
+    });
   }
   async signIn(signInDto: SignInDto) {
     const user = await this.userClientService.findByUsername(
@@ -187,31 +181,27 @@ export class AuthenticationService {
         throw new UnauthorizedException('Invalid 2FA Code');
       }
     } else {
-      const equal = await this.hashingService.compare(
-        user.password,
-        signInDto.password,
-      );
-
-      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
-
-      if (tenant == null) {
-        throw new UnauthorizedException(
-          'Tenant tidak aktif atau periode tenant telah berakhir',
+        const equal = await this.hashingService.compare(
+          user.password,
+          signInDto.password,
         );
-      }
 
-      const currentDate = new Date();
-      const periodEndDate = new Date(tenant.period_end);
-
-      if (!tenant.isActive || periodEndDate < currentDate) {
-        throw new UnauthorizedException(
-          'Tenant tidak aktif atau periode tenant telah berakhir',
-        );
-      }
-
-      if (!equal) {
-        throw new UnauthorizedException('Username Atau Password Salah');
-      }
+        const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+        if (tenant == null) {
+          throw new UnauthorizedException(
+            'Tenant tidak aktif atau periode tenant telah berakhir',
+          );
+        }
+        const currentDate = new Date();
+        const periodEndDate = new Date(tenant.period_end);
+        if (!tenant.isActive || periodEndDate < currentDate) {
+          throw new UnauthorizedException(
+            'Tenant tidak aktif atau periode tenant telah berakhir',
+          );
+        }
+        if (!equal) {
+          throw new UnauthorizedException('Username Atau Password Salah');
+        }
     }
 
     return await this.generateToken(user);
