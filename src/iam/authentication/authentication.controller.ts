@@ -83,18 +83,18 @@ export class AuthenticationController {
   @ApiCreatedResponse({
     description: 'verifikasi berhasil',
     content: {
-        'application/json': {
-          examples: {
-            generateOTP: {
-              summary: 'Akun terbuat',
-              value: {
-                statusCode: 201,
-                message: 'Berhasil membuat akun silahkan request code OTP',
-              },
+      'application/json': {
+        examples: {
+          generateOTP: {
+            summary: 'Akun terbuat',
+            value: {
+              statusCode: 201,
+              message: 'Berhasil membuat akun silahkan request code OTP',
             },
           },
         },
       },
+    },
   })
   @Post('mobile/auth/register')
   async signUp(
@@ -130,29 +130,31 @@ export class AuthenticationController {
 
   @ApiOperation({
     summary: 'resend kode otp dan juga kirim verifikasi akun',
+    description:
+      'Jika hanya ingin resend kode otp silahkan kirim whatsappnya saja dan ketika ingin konfirmasi kirim whatsapp dan token',
   })
   @ApiOkResponse({
     description: 'verifikasi berhasil',
     content: {
-        'application/json': {
-          examples: {
-            generateOTP: {
-              summary: 'Generate kode OTP',
-              value: {
-                statusCode: 200,
-                message: 'berhasil generate code otp',
-              },
+      'application/json': {
+        examples: {
+          generateOTP: {
+            summary: 'Generate kode OTP',
+            value: {
+              statusCode: 200,
+              message: 'berhasil generate code otp',
             },
-            verified: {
-              summary: 'berhasil verifikasi',
-              value: {
-                statusCode: 200,
-                message: 'verifikasi berhasil',
-              },
+          },
+          verified: {
+            summary: 'berhasil verifikasi',
+            value: {
+              statusCode: 200,
+              message: 'verifikasi berhasil',
             },
           },
         },
       },
+    },
   })
   @ApiNotAcceptableResponse({
     description: 'Not Acceptable Responses',

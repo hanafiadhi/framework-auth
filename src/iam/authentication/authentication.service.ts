@@ -181,27 +181,27 @@ export class AuthenticationService {
         throw new UnauthorizedException('Invalid 2FA Code');
       }
     } else {
-        const equal = await this.hashingService.compare(
-          user.password,
-          signInDto.password,
-        );
+      const equal = await this.hashingService.compare(
+        user.password,
+        signInDto.password,
+      );
 
-        const tenant = await this.tenantClientService.findTenant(user.tenant_id);
-        if (tenant == null) {
-          throw new UnauthorizedException(
-            'Tenant tidak aktif atau periode tenant telah berakhir',
-          );
-        }
-        const currentDate = new Date();
-        const periodEndDate = new Date(tenant.period_end);
-        if (!tenant.isActive || periodEndDate < currentDate) {
-          throw new UnauthorizedException(
-            'Tenant tidak aktif atau periode tenant telah berakhir',
-          );
-        }
-        if (!equal) {
-          throw new UnauthorizedException('Username Atau Password Salah');
-        }
+      const tenant = await this.tenantClientService.findTenant(user.tenant_id);
+      if (tenant == null) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
+      const currentDate = new Date();
+      const periodEndDate = new Date(tenant.period_end);
+      if (!tenant.isActive || periodEndDate < currentDate) {
+        throw new UnauthorizedException(
+          'Tenant tidak aktif atau periode tenant telah berakhir',
+        );
+      }
+      if (!equal) {
+        throw new UnauthorizedException('Username Atau Password Salah');
+      }
     }
 
     return await this.generateToken(user);
@@ -215,8 +215,9 @@ export class AuthenticationService {
     if (!user) throw new UnauthorizedException('username atau password salah');
 
     if (
-      user.hasOwnProperty('applications') &&
-      !user?.applications?.includes('mobile-canvassing')
+      (!user?.applications?.includes('mobile-canvassing') ||
+        !user?.applications?.includes('mobile-witness')) &&
+      user.hasOwnProperty('applications')
     ) {
       throw new UnauthorizedException('Username Atau Password Salah');
     }
