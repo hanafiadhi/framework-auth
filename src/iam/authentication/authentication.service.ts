@@ -215,11 +215,14 @@ export class AuthenticationService {
     if (!user) throw new UnauthorizedException('username atau password salah');
 
     if (
-      (!user?.applications?.includes('mobile-canvassing') ||
-        !user?.applications?.includes('mobile-witness')) &&
-      user.hasOwnProperty('applications')
+      user &&
+      user.hasOwnProperty('applications') &&
+      !(
+        user.applications.includes('mobile-canvassing') ||
+        user.applications.includes('mobile-witness')
+      )
     ) {
-      throw new UnauthorizedException('Username Atau Password Salah');
+      throw new UnauthorizedException('username atau password salah');
     }
 
     if (user.is_active == false) {
