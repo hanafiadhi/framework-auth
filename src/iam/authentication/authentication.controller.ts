@@ -117,7 +117,7 @@ export class AuthenticationController {
       applications: [application], //env
       is_active: false,
     };
-
+    signUpDto.is_canvassing = true;
     await this.authService.signUp(signUpDto, user);
     response
       .status(HttpStatus.CREATED)

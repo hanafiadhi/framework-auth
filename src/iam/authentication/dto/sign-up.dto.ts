@@ -5,7 +5,6 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
-  MaxLength,
   MinLength,
 } from 'class-validator';
 
@@ -75,7 +74,6 @@ export class SignUpDto {
   @IsString()
   rw: string;
 
-  @IsOptional()
   @IsNotEmpty()
   @IsString()
   tenant_id: string;
@@ -85,6 +83,53 @@ export class SignUpDto {
   @IsString()
   volunteer_code: string;
 
+  @IsOptional()
+  @IsMongoId()
+  assignment_province_id?: string;
+
+  @IsOptional()
+  @IsString()
+  assignment_province_name?: string;
+
+  @IsOptional()
+  @IsMongoId()
+  assignment_city_id?: string | null;
+
+  @IsOptional()
+  @IsString()
+  assignment_city_name?: string | null;
+
+  @IsOptional()
+  @IsMongoId()
+  assignment_district_id?: string | null;
+
+  @IsOptional()
+  @IsString()
+  assignment_district_name?: string | null;
+
+  @IsOptional()
+  @IsMongoId({ each: true })
+  assignment_sub_district_id?: string[] | null;
+
+  @IsOptional()
+  @IsString({ each: true })
+  assignment_sub_district_name?: string[] | null;
+
+  @IsOptional()
+  @IsString()
+  assignment_rw?: string;
+
+  @IsOptional()
+  @IsString()
+  assignment_rt?: string;
+
+  @IsOptional()
+  @IsString()
+  assignment_tps?: string;
+
   @ApiHideProperty()
   user_id: string;
+
+  @ApiHideProperty()
+  is_canvassing: boolean;
 }

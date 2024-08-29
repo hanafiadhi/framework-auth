@@ -11,7 +11,7 @@ import { HealthModule } from './health/health.module';
       isGlobal: true,
       cache: true,
       ignoreEnvFile: false,
-      envFilePath: ['./env/.env.development'],
+      envFilePath: ['.env'],
     }),
     IamModule,
     HealthModule,

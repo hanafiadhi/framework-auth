@@ -1,11 +1,15 @@
 # Stage 1: Development Stage
-FROM node:20-alpine AS development
+FROM node:22-alpine AS development
 
 WORKDIR /usr/src/app/auth
 
 # Copy package files and install all dependencies including dev dependencies
 COPY ./auth-agg/package.json ./auth-agg/package-lock.json ./
 COPY ./auth-agg/tsconfig.json ./auth-agg/tsconfig.build.json ./auth-agg/nest-cli.json ./
+
+RUN node -v
+RUN npm -v
+
 RUN npm install
 
 # Clean npm cache
@@ -21,7 +25,7 @@ FROM development AS builder
 RUN npm run build
 
 # Stage 3: Production Stage
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /usr/src/app/auth
 
